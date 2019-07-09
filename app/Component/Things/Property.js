@@ -106,30 +106,8 @@ export default class Property extends React.Component {
                 <Content style={{paddingTop: 8, paddingRight: 8, paddingLeft: 8}}>
 
                     <Card style={{
-                        height: slideHeight,
-                        borderRadius: 8,
-                    }}
-                    >
-
-                        <View style={{padding: 8,}}>
-                            <Row style={{height: 60, alignItems: 'center'}}>
-                                <Image
-                                    source={{uri: this.state.avatar}}
-                                    style={{
-                                        height: 60, width: 60, borderRadius: 30, marginRight: 8
-                                    }}
-                                />
-                                <View>
-                                    <Text style={{
-                                        fontWeight: "700",
-                                        fontSize: 15,
-                                        color: "#006fbc"
-                                    }}>{this.state.name}</Text>
-                                    <Text uppercase={true} style={{fontSize: 11}}>{created_at}</Text>
-                                </View>
-                            </Row>
-                        </View>
-
+                        height: slideHeight, borderRadius: 8
+                    }}>
                         <View style={styles.shadow}/>
                         <View style={[styles.imageContainer, even ? styles.imageContainerEven : {}]}>
                             {this.image}

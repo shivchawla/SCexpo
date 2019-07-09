@@ -25,23 +25,22 @@ import {
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/variables';
 import {StyleProvider, Input} from "native-base";
-import ImagePicker from 'react-native-image-picker';
-import ImageCarousel from 'react-native-image-carousel';
 import {ENTRIES1} from "./PropertyScreen";
-import ScaledImage from "./Things/ScaledImage";
-import reauthenticate from "../Utils/Reauthenticate";
 import translate from "../Utils/i18n";
 
 const {width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
 export default class AddNewAgent extends React.Component {
     constructor() {
-        super()
+        super();
         this.state = {
             name: "",
             email: "",
             password: "",
-            token: ""
+            token: "",
+            phone: "",
+            location: "",
+            sub_location: "",
         };
         this.getData = this.getData.bind(this);
         this.onSubmitClicked = this.onSubmitClicked.bind(this);
@@ -67,39 +66,20 @@ export default class AddNewAgent extends React.Component {
     };
 
     async onSubmitClicked() {
-        this.getData().then(res => {
-            if (res.success) {
-                this.addAgentRequest().then(res1 => {
-                    if (res1.success) {
-                        alert("added")
-                    } else if (res1.error) {
-                        if (res1.error[0].includes("token")) {
-                            reauthenticate({email: res.email, password: res.password}).then(token => {
-                                this.setState({token: token.token});
-                                console.log(this.state.token);
-                                this.onSubmitClicked();
-                            })
-                        }
-                    } else if (res1.errors) {
-                        let m = "Error: ";
-                        if (res1.errors) {
-                            console.log(res1.errors)
-                            if (res1.errors.password) {
-                                m += res1.errors.password[0];
-                            }
-                            if (res1.errors.email) {
-                                m += res1.errors.email[0];
-                            }
-                            if (res1.errors.name) {
-                                m += res1.errors.name[0];
-                            }
-                            console.log(m)
-                            alert(m);
-                        }
-                    }
-                })
-            }
-        })
+        if (this.state.phone.length !== 11) {
+            alert("Phone is not valid")
+        }
+        else if (!this.state.name || !this.state.email || !this.state.location || !this.state.sub_location || !this.state.password) {
+            alert("Please fill all the data correctly!")
+        }
+        else {
+            this.getData().then(res => {
+                if (res.success) {
+                    this.props.navigation.navigate("MemberShipScreen", {data: this.state});
+                }
+            })
+        }
+
     }
 
     addAgentRequest() {
@@ -165,6 +145,27 @@ export default class AddNewAgent extends React.Component {
                                        onChangeText={(text) => {
                                            this.setState({password: text})
                                        }}/>
+                                <Input placeholder={translate('phone')} keyboardType={"numeric"} style={{
+                                    marginBottom: 5, borderRadius: 25, padding: 5, borderStyle: "solid",
+                                    borderWidth: 1, borderColor: "#eaeaea"
+                                }}
+                                       onChangeText={(text) => {
+                                           this.setState({phone: text})
+                                       }}/>
+                                <Input placeholder={translate('location')} style={{
+                                    marginBottom: 5, borderRadius: 25, padding: 5, borderStyle: "solid",
+                                    borderWidth: 1, borderColor: "#eaeaea"
+                                }}
+                                       onChangeText={(text) => {
+                                           this.setState({location: text})
+                                       }}/>
+                                <Input placeholder={translate('sub_location')} style={{
+                                    marginBottom: 5, borderRadius: 25, padding: 5, borderStyle: "solid",
+                                    borderWidth: 1, borderColor: "#eaeaea"
+                                }}
+                                       onChangeText={(text) => {
+                                           this.setState({sub_location: text})
+                                       }}/>
 
                                 <Button primary full rounded onPress={this.onSubmitClicked}>
                                     <Text uppercase
@@ -183,5 +184,4 @@ export default class AddNewAgent extends React.Component {
             </StyleProvider>
         );
     }
-
 }

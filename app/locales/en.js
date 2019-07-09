@@ -15,7 +15,7 @@ export default {
     "settings": "Settings",
     "becomeAgent": "Become Agent",
     "manageAgent": "Manage Agents",
-    "page": "Page",
+    "page": "Profile",
     "Submit": "Submit",
     "area": "Area",
     "sub_location": "Sub Location",
@@ -51,12 +51,18 @@ export default {
     "changeToArabic": "Change To Arabic",
     "changeToEnglish": "ChangeTo English",
     "addAgent": "Add Agent",
-    "manageAgents":"Manage Agents",
-    "rateAgent":"Rate Agent",
-    "cancel":"Cancel",
-    "notSpecified":"Not Specified",
-    "negotiable":"Negotiable",
-    "phone":"Phone"
-
-
+    "manageAgents": "Manage Agents",
+    "rateAgent": "Rate Agent",
+    "cancel": "Cancel",
+    "notSpecified": "Not Specified",
+    "negotiable": "Negotiable",
+    "phone": "Phone",
+    "endDate": "End Date",
+    "packages": "Packages",
+    "become": "Become",
+    "durability": "Durability",
+    "select":"Select",
+    "currentOffer":"Current Offer",
+    "old_price":"Old Price",
+    "kitchens":"Kitchens"
 }

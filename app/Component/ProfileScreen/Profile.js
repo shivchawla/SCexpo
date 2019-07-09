@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import StarRating from 'react-native-star-rating';
 import ImagePicker from 'react-native-image-picker';
-
 import {
     Text,
     Container,
@@ -44,6 +43,7 @@ import SettingsScreen from "../SettingsScreen/SettingsScreen";
 import reauthenticate from "../../Utils/Reauthenticate";
 import Property from "../Things/Property";
 import translate from "../../Utils/i18n";
+import {Permissions, Constants} from 'expo';
 
 const {width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -119,16 +119,97 @@ export default class Profile extends React.Component {
         header: null,
     };
 
+
+
+    getPermissionAsync = async () => {
+        if (Constants.platform.ios) {
+            const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    }
+
+    _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+        });
+
+        console.log(result);
+
+        if (!result.cancelled) {
+
+            const source = {uri: result.uri};
+            this.getImageName(result.uri).then(res => {
+                result.name = res.name;
+                result.type = res.ex;
+                console.log(res)
+
+                let finalResult = {
+                    name: res.name,
+                    type: res.ex,
+                    uri: result.uri,
+                };
+                this.setState({avatar: finalResult});
+                Alert.alert('Upload', 'Confirm Upload',
+                    [
+                        {text: 'Upload', onPress: () => this.onUploadClicked()},
+                        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'}
+                    ],
+                    {cancelable: false}
+                );
+            })
+
+        }
+    };
+
+    getImageName(uri) {
+        return new Promise((resolve, reject) => {
+            let name = '';
+            let ex = '';
+            for (let i = uri.length - 1; i >= 0; i--) {
+                console.log(uri[i])
+                if (uri[i] !== '/') {
+                    name = name + uri[i];
+                } else {
+                    ex = uri.toLowerCase().includes("png") ? "image/png" : "image/jpeg";
+                    let arrName = name.split("");
+                    arrName = arrName.reverse();
+                    name = arrName.join("");
+                    resolve({
+                        name: name,
+                        ex: ex
+                    });
+                    break;
+
+                }
+            }
+        })
+
+    }
+
     componentDidMount() {
         this.setState({show: true})
     }
 
-    uploadImage =(data) => {
+    uploadImage = (data) => {
+
+        let formData = new FormData();
+        formData.append("image", {
+            uri: data.image.uri,
+            type: data.image.type,  // <-  Did you miss that one?
+            name: data.image.name
+        });
+        formData.append("token", data.token);
+
         return fetch("http://www.semsar.city/api/agents/update/image", {
             method: 'POST',
-            body: JSON.stringify(data),
+            body: formData,
             headers: {
-                'Content-Type': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data'
             }
         })
             .then(res => res.json())
@@ -162,7 +243,7 @@ export default class Profile extends React.Component {
                         getUser({token: res.token}).then(res => {
                             if (res.message === "done") {
                                 this.setState({name: res.result.name})
-                                this.setState({image: "1555612135-PRqC2F.jpg"})
+                                this.setState({image: res.result.image})
                             } else {
                             }
                         })
@@ -195,7 +276,7 @@ export default class Profile extends React.Component {
             token: this.state.token,
         };
 
-        return fetch(` http://www.semsar.city/api/agents/agent-properties/${encodeURIComponent(this.props.navigation.state.params.data.name)}
+        return fetch(`http://www.semsar.city/api/agents/agent-properties/${encodeURIComponent(this.props.navigation.state.params.data.name)}
         ?token=${encodeURIComponent(this.state.token)}`, {
             method: 'GET',
             params: JSON.stringify(dataApi1),
@@ -276,7 +357,7 @@ export default class Profile extends React.Component {
         this.sendRate = this.sendRate.bind(this);
         this.submitRate = this.submitRate.bind(this);
         this.onImageClicked = this.onImageClicked.bind(this);
-
+        this._pickImage = this._pickImage.bind(this);
         this.getData();
     }
 
@@ -383,15 +464,7 @@ export default class Profile extends React.Component {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
-                const source = {uri: response.uri};
-                this.setState({avatar: response});
-                Alert.alert('Alert Title', 'My Alert Msg',
-                    [
-                        {text: 'Upload', onPress: () => this.onUploadClicked()},
-                        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'}
-                    ],
-                    {cancelable: false}
-                );
+
             }
         });
     };
@@ -404,7 +477,7 @@ export default class Profile extends React.Component {
 
         this.uploadImage({
             token: this.state.token,
-            image: this.state.avatar.data
+            image: this.state.avatar
         }).then((res) => {
             console.log(res);
             if (!res.success) {
@@ -488,7 +561,7 @@ export default class Profile extends React.Component {
 
                                     <TouchableOpacity
                                         disabled={this.props.navigation.state.params.data.name !== this.state.name}
-                                        onPress={this.onImageClicked}>
+                                        onPress={this._pickImage}>
 
                                         <Image style={{
                                             borderRadius: viewportWidth * .25,
@@ -546,4 +619,3 @@ export default class Profile extends React.Component {
     }
 
 }
-

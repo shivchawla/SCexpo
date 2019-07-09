@@ -14,7 +14,7 @@ export default {
     "settings": "الاعدادات",
     "becomeAgent": "اصبح عميل",
     "manageAgent": "ادارة العملاء",
-    "page": "صفحتي",
+    "page": "الملف الشخصي",
     "Submit": "تأكيد",
     "area": "المساحة",
     "sub_location": "المنطقة",
@@ -49,14 +49,21 @@ export default {
     "reportProblem": "بلغ عن مشكلة",
     "changeToArabic": "تغير اللغة الي العربية",
     "changeToEnglish": "تغيير اللغة الي الانجليزية",
-    "addAgent":"إضافة عميل",
-    "manageAgents":"ادارة العملاء",
-    "rateAgent":"تقييم العميل",
-    "cancel":"اغلاق",
-    "notSpecified":"غير مخصص",
-    "negotiable":"قابل للتفاوض",
-    "phone":"رقم الهاتف"
+    "addAgent": "إضافة عميل",
+    "manageAgents": "ادارة العملاء",
+    "rateAgent": "تقييم العميل",
+    "cancel": "اغلاق",
+    "notSpecified": "غير مخصص",
+    "negotiable": "قابل للتفاوض",
+    "phone": "رقم الهاتف",
+    "endDate": "تاريخ الانتهاء",
+    "packages": "العروض",
+    "become": "اصبح",
+    "durability": "الفترة المتاحة",
+    "select": "اختيار",
+    "currentOffer": "العرض الحالي",
+    "old_price":"السعر القديم",
 
-
+    "kitchens":"عدد المطابخ"
 
 }

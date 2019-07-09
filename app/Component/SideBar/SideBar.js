@@ -16,7 +16,6 @@ import {AsyncStorage} from 'react-native';
 import reauthenticate from "../../Utils/Reauthenticate";
 import {NavigationActions} from "react-navigation";
 import translate from "../../Utils/i18n";
-import I18n from "ex-react-native-i18n";
 
 const {width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
@@ -202,24 +201,24 @@ export default class SideBar extends React.Component {
                         : null
                     }
 
+                    {this.state.type === "agent" ? <ListItem
+                            button
+                            onPress={() => this.props.navigation.navigate("ManageAgentsScreen")}>
+                            <Icon name={"md-contact"} style={{marginRight: 18, color: "grey"}}/>
+                            <Text>{translate('manageAgent')}</Text>
+                        </ListItem>
+
+                        : null
+                    }
                     {this.state.type === "agent" || this.state.type === "broker" ?
-                        <View>
 
-                            <ListItem
-                                button
-                                onPress={() => this.props.navigation.navigate("ManageAgentsScreen")}>
-                                <Icon name={"md-contact"} style={{marginRight: 18, color: "grey"}}/>
-                                <Text>{translate('manageAgent')}</Text>
-                            </ListItem>
-
-                            <ListItem
-                                disabled={!this.state.name}
-                                button
-                                onPress={() => this.props.navigation.navigate("Profile", {data: {name: this.state.name}})}>
-                                <Icon name={"md-contact"} style={{marginRight: 18, color: "grey"}}/>
-                                <Text>{translate('page')}</Text>
-                            </ListItem>
-                        </View>
+                        <ListItem
+                            disabled={!this.state.name}
+                            button
+                            onPress={() => this.props.navigation.navigate("Profile", {data: {name: this.state.name}})}>
+                            <Icon name={"md-contact"} style={{marginRight: 18, color: "grey"}}/>
+                            <Text>{translate('page')}</Text>
+                        </ListItem>
                         : null
                     }
 

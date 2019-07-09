@@ -6,23 +6,16 @@ import {
     TouchableHighlight,
     AsyncStorage,
     Dimensions,
-    ScrollView, Alert
+    ScrollView, Alert,
+    TouchableOpacity,
 } from 'react-native';
 import translate from "../Utils/i18n"
 import {Button, Text, Input, Item} from 'native-base';
-import axios from 'axios';
-// import {GoogleSignin, GoogleSigninButton, statusCodes} from 'react-native-google-signin';
-import {LoginButton, AccessToken} from 'react-native-fbsdk';
-
-// GoogleSignin.configure({
-//     // what API you want to access on behalf of the user, default is email and profile
-//     webClientId: '219386919981-263o049rvlalh7110io5kvgsnpj43hll.apps.googleusercontent.com', // client ID of type WEB for your server (needed to verify user ID and offline access)
-//     offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
-//     hostedDomain: '', // specifies a hosted domain restriction
-//     forceConsentPrompt: true, // [Android] if you want to show the authorization prompt at each login
-//     accountName: '', // [Android] specifies an account name on the device that should be used // [iOS] optional, if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
-// });
-
+import * as Facebook from 'expo-facebook';
+import styles from '../styles/facebookLoginStyle';
+import {Entypo} from '@expo/vector-icons';
+import {LinearGradient} from 'expo';
+import {Font, AppLoading} from "expo";
 
 const style = StyleSheet.create({
     container: {
@@ -123,24 +116,48 @@ function logUser(data) {
         })
 }
 
+
 export default class RegisterScreen extends React.Component {
 
+    async logIn() {
+        try {
+            const {
+                type,
+                token,
+                expires,
+                permissions,
+                declinedPermissions,
+            } = await Facebook.logInWithReadPermissionsAsync('353006628739135', {
+                permissions: ['public_profile', 'email'],
+            });
+            if (type === 'success') {
+                // Get the user's name using Facebook's Graph API
+                const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+                console.log(response.json());
+                this.setState({name: response.json().name})
+                this.setState({email: response.json().email})
+                this.setState({phone: response.json().id})
+                this.setState({password: response.json().id})
+                this.onRegisterClicked();
+                Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+            } else {
+                // type === 'cancel'
+            }
+        } catch ({message}) {
+            alert(`Facebook Login Error: ${message}`);
+        }
+    }
 
-    press = () => {
-        axios.post('http://semsar.city/users/register', {
-            name: this.state.name,
-            email: this.state.email,
-            password: this.state.password
-        }).then(function (response) {
-            console.log(response)
-        })
-    };
+    async componentWillMount() {
+
+        this.setState({loading: false});
+    }
 
     constructor(props) {
         super(props);
         this.initUser = this.initUser.bind(this);
         this.onRegisterClicked = this.onRegisterClicked.bind(this);
-        this.state = {name: "", email: "", password: "", showToast: false, phone: 0}
+        this.state = {name: "", email: "", password: "", showToast: false, phone: "", loading: true}
     }
 
     saveUser = async (key, data) => {
@@ -152,48 +169,55 @@ export default class RegisterScreen extends React.Component {
         }
     };
 
-    // signIn = async () => {
-    //     try {
-    //         await GoogleSignin.hasPlayServices();
-    //         const userInfo = await GoogleSignin.signIn();
-    //         alert("here");
-    //         console.log(userInfo)
-    //         this.setState({email: userInfo.user.email})
-    //         this.setState({password: userInfo.user.id})
-    //         this.setState({name: userInfo.user.name});
-    //         this.onRegisterClicked()
-    //     } catch (error) {
-    //         if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-    //             // user cancelled the login flow
-    //             alert("Canceled")
-    //         } else if (error.code === statusCodes.IN_PROGRESS) {
-    //             // operation (f.e. sign in) is in progress already
-    //             alert("In Progress")
-    //         } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-    //             // play services not available or outdated
-    //             alert("Google services not available")
-    //
-    //         } else {
-    //             // some other error happened
-    //             console.log(error.message)
-    //         }
-    //     }
-    // };
+    signIn = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            alert("here");
+            console.log(userInfo)
+            this.setState({email: userInfo.user.email})
+            this.setState({password: userInfo.user.id})
+            this.setState({name: userInfo.user.name});
+            this.onRegisterClicked()
+        } catch (error) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                // user cancelled the login flow
+                alert("Canceled")
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                // operation (f.e. sign in) is in progress already
+                alert("In Progress")
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                alert("Google services not available")
+            } else {
+                console.log(error.message)
+            }
+        }
+    };
 
-    // getCurrentUserInfo = async () => {
-    //     try {
-    //         const userInfo = await GoogleSignin.signInSilently();
-    //         alert(userInfo)
-    //     } catch (error) {
-    //         if (error.code === statusCodes.SIGN_IN_REQUIRED) {
-    //             alert("sign in required");
-    //             this.signIn();
-    //
-    //         } else {
-    //             // some other error
-    //         }
-    //     }
-    // };
+    getCurrentUserInfo = async () => {
+        if (this.state.phone) {
+            if (this.state.phone.length === 11) {
+                try {
+                    const userInfo = await GoogleSignin.signInSilently();
+                    alert(userInfo)
+                } catch (error) {
+                    if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+                        alert("sign in required");
+                        this.signIn();
+
+                    } else {
+                        // some other error
+                    }
+                }
+            } else {
+                alert("please add a valid phone number")
+
+            }
+        } else {
+            alert("please type your phone")
+        }
+
+    };
 
     initUser(token, userID) {
         fetch('https://graph.facebook.com/v2.5/' + userID + '?fields=email,name,friends&access_token=' + token)
@@ -204,14 +228,15 @@ export default class RegisterScreen extends React.Component {
                 user.name = json.name
                 user.id = json.id
                 user.user_friends = json.friends
-                user.email = json.email
-                user.username = json.name
-                user.loading = false
-                user.loggedIn = true
+                user.email = json.email;
+                user.username = json.name;
+                user.loading = false;
+                user.loggedIn = true;
                 console.log(user)
-                this.setState({email: user.email})
-                this.setState({password: user.id})
-                this.setState({name: user.name})
+                this.setState({email: user.email});
+                this.setState({password: user.id});
+                this.setState({name: user.name});
+                this.setState({phone: user.id});
                 this.onRegisterClicked();
             })
             .catch(() => {
@@ -302,114 +327,124 @@ export default class RegisterScreen extends React.Component {
     };
 
     render() {
+        if (this.state.loading) {
+            return (<AppLoading/>)
+        } else {
+            return (
+                <ScrollView>
 
-        return (
-            <ScrollView scrollEnabled={false}>
+                    <View style={style.container}>
 
-                <View style={style.container}>
-
-                    <Text style={style.instructions}>
-                        {translate('Register')}
-                    </Text>
-                    <Text style={style.secondary}>
-                        {translate('SignUpContent')}
-                    </Text>
-                    <Text style={style.terms}>
-                        {translate('TermsAndCondition')}
-                    </Text>
-                    {/*<GoogleSigninButton*/}
-                        {/*style={{width: viewportWidth - 20, height: 48}}*/}
-                        {/*size={GoogleSigninButton.Size.Wide}*/}
-                        {/*color={GoogleSigninButton.Color.Dark}*/}
-                        {/*onPress={this.getCurrentUserInfo}*/}
-
-                        {/*disabled={false}/>*/}
-
-
-                    <Text style={style.text_margin}>{translate('OrSignUpWithEmail')}</Text>
+                        <Text style={style.instructions}>
+                            {translate('Register')}
+                        </Text>
+                        <Text style={style.secondary}>
+                            {translate('SignUpContent')}
+                        </Text>
+                        <Text style={style.terms}>
+                            {translate('TermsAndCondition')}
+                        </Text>
+                        <TouchableOpacity onPress={this.logIn}>
+                            <LinearGradient
+                                colors={['#4c669f', '#3b5998', '#192f6a']}
+                                style={styles.facebookButton}
+                            >
+                                <Entypo name="facebook" style={styles.facebookIcon}/>
+                                <Text style={styles.facebookButtonText}>
+                                    Sign in with Facebook
+                                </Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
 
 
-                    <Item stackedLabel>
-                        <Input placeholder={translate("Email")} onChangeText={(text) => {
-                            this.setState({email: text})
-                        }}/>
-                    </Item>
-                    <Item stackedLabel>
-                        <Input placeholder={translate("phone")} keyboardType={"numeric"} onChangeText={(text) => {
-                            this.setState({phone: text})
-                        }}/>
-                    </Item>
-                    <Item>
-                        <Input placeholder={translate("Name")} onChangeText={(text) => {
-                            this.setState({name: text})
-                        }}/>
-                    </Item>
-                    <Item last>
-                        <Input secureTextEntry={true} placeholder={translate("Password")} onChangeText={(text) => {
-                            this.setState({password: text})
-                        }}/>
-                    </Item>
+                        <Text style={style.text_margin}>{translate('OrSignUpWithEmail')}</Text>
 
-                    <Button block dark style={{marginTop: 25, marginBottom: 25}} onPress={() => {
 
-                        let data = {
-                            name: this.state.name,
-                            email: this.state.email,
-                            password: this.state.password
-                        };
-                        registerUser(data)
-                            .then((res) => {
-                                console.log(res.api_response.success);
-                                if (res.api_response.success) {
-                                    let data = {
-                                        email: this.state.email,
-                                        password: this.state.password
-                                    };
-                                    logUser(data).then((res) => {
-                                        if (res.api_response.message) {
-                                            alert(res.api_response.data.userInfo);
-                                            this.saveUser("email", res.api_response.data.userInfo.email)
-                                            this.saveUser("name", res.api_response.data.userInfo.name);
-                                            this.saveUser("token", res.api_response.data.token);
-                                            this.saveUser("password", data.password);
-                                            this.saveUser("id", res.api_response.data.userInfo.id);
-                                            this.props.navigation.navigate('Home');
-                                        } else {
-                                            let m = "";
-                                            if (res.api_response.errors) {
-                                                if (res.api_response.errors.password) {
-                                                    m += res.api_response.errors.password[0];
+                        <Item stackedLabel>
+                            <Input placeholder={translate("Email")} onChangeText={(text) => {
+                                this.setState({email: text})
+                            }}/>
+                        </Item>
+                        <Item stackedLabel>
+                            <Input placeholder={translate("phone")} keyboardType={"numeric"} onChangeText={(text) => {
+                                this.setState({phone: parseInt(text)})
+                            }}/>
+                        </Item>
+                        <Item>
+                            <Input placeholder={translate("Name")} onChangeText={(text) => {
+                                this.setState({name: text})
+                            }}/>
+                        </Item>
+                        <Item last>
+                            <Input secureTextEntry={true} placeholder={translate("Password")} onChangeText={(text) => {
+                                this.setState({password: text})
+                            }}/>
+                        </Item>
+
+                        <Button block dark style={{marginTop: 25, marginBottom: 25}} onPress={() => {
+
+                            let data = {
+                                name: this.state.name,
+                                email: this.state.email,
+                                password: this.state.password,
+                                phone: this.state.phone
+                            };
+                            console.log(data);
+                            registerUser(data)
+                                .then((res) => {
+                                    console.log(res.api_response.success);
+                                    if (res.api_response.success) {
+                                        let data = {
+                                            email: this.state.email,
+                                            password: this.state.password
+                                        };
+                                        logUser(data).then((res) => {
+                                            if (res.api_response.message) {
+                                                alert(res.api_response.data.userInfo);
+                                                this.saveUser("email", res.api_response.data.userInfo.email)
+                                                this.saveUser("name", res.api_response.data.userInfo.name);
+                                                this.saveUser("token", res.api_response.data.token);
+                                                this.saveUser("password", data.password);
+                                                this.saveUser("id", res.api_response.data.userInfo.id);
+                                                this.props.navigation.navigate('Home');
+                                            } else {
+                                                let m = "";
+                                                if (res.api_response.errors) {
+                                                    if (res.api_response.errors.password) {
+                                                        m += res.api_response.errors.password[0];
+                                                    }
                                                 }
+                                                if (res.api_response.error) {
+                                                    m += res.api_response.error
+                                                }
+                                                Alert.alert("Error", m);
                                             }
-                                            if (res.api_response.error) {
-                                                m += res.api_response.error
-                                            }
-                                            Alert.alert("Error", m);
+                                        });
+
+                                    } else {
+                                        let m = "";
+                                        if (res.api_response.errors.password) {
+                                            m += res.api_response.errors.password[0]
                                         }
-                                    });
-
-                                } else {
-                                    let m = "";
-                                    if (res.api_response.errors.password) {
-                                        m += res.api_response.errors.password[0]
+                                        if (res.api_response.errors.email) {
+                                            m += res.api_response.errors.email[0]
+                                        }
+                                        alert(m)
                                     }
-                                    if (res.api_response.errors.email) {
-                                        m += res.api_response.errors.email[0]
-                                    }
-                                    alert(m)
-                                }
-                            })
-                    }}>
-                        <Text>{translate("Register")}</Text>
-                    </Button>
+                                })
+                        }}>
+                            <Text>{translate("Register")}</Text>
+                        </Button>
 
 
-                    <Text style={style.terms}
-                          onPress={() => {
-                              this.props.navigation.push('Login')
-                          }}>{translate("OrSignIn")}</Text>
-                </View>
-            </ScrollView>
-        );
+                        <Text style={style.terms}
+                              onPress={() => {
+                                  this.props.navigation.push('Login')
+                              }}>{translate("OrSignIn")}</Text>
+                    </View>
+                </ScrollView>
+            );
+        }
+
     }
 }

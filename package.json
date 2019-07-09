@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@expo/vector-icons": "latest",
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
     "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "@fortawesome/react-fontawesome": "^0.1.4",
@@ -15,8 +16,11 @@
     "axios": "^0.18.1",
     "ex-react-native-i18n": "^0.0.6",
     "expo": "^33.0.0",
+    "expo-facebook": "~5.0.1",
     "expo-file-system": "~5.0.1",
     "expo-google-sign-in": "~5.0.1",
+    "expo-image-picker": "~5.0.2",
+    "expo-linear-gradient": "~5.0.1",
     "expo-sqlite": "~5.0.1",
     "native-base": "^2.12.1",
     "prop-types": "latest",

@@ -75,7 +75,6 @@ function getHome(data) {
         return apiResponse.json();
         // this.setState({result: apiResponse.result});s
     }).then((responseJson) => {
-        console.log(responseJson);
 
         if (responseJson.properties != null) {
             return {
@@ -190,17 +189,14 @@ export default class HomeScreen extends React.Component {
                 object.updated_at + '" );',
                 [],
                 (_, {rows}) => {
-                    console.log(rows, "added");
                 }, (error) => {
-                    console.log(error)
                 });
         })
     }
 
     componentWillMount() {
         console.log(getCurrentLocale());
-        AppState.addEventListener('change', this._handleAppStateChange);
-
+        // AppState.addEventListener('change', this._handleAppStateChange);
     }
 
     insertIntoDatabase(tx, i) {
@@ -339,12 +335,10 @@ export default class HomeScreen extends React.Component {
                 tx.executeSql('select * from home_props', [], (tx, results) => {
                     const rows = results.rows;
                     let result = [];
-                    console.log("n", results);
                     var len = results.rows.length;
                     for (let i = 0; i < len; i++) {
                         let row = results.rows.item(i);
                         result.push(row)
-                        console.log(`Prod ID: ${row.id}, Prod Name: ${row.title}, ${row.price}`)
                     }
                     resolve({rows: results.rows.length, data: result})
                 })
@@ -496,46 +490,44 @@ export default class HomeScreen extends React.Component {
             appState: AppState.currentState
         };
         db.transaction(tx => {
-            db.transaction(tx => {
-                console.log(tx)
-                tx.executeSql(
-                    'create table if not exists home_props (' +
-                    'id STRING,' +
-                    'code STRING, ' +
-                    'title STRING, ' +
-                    ' user_id STRING, ' +
-                    ' location STRING, ' +
-                    ' sub_location STRING, ' +
-                    ' description STRING, ' +
-                    ' featured_image STRING, ' +
-                    ' gallery STRING, ' +
-                    ' veiw_count INTEGER, ' +
-                    ' old_price INTEGER, ' +
-                    ' price INTEGER, ' +
-                    ' price_unit INTEGER, ' +
-                    ' price_type STRING, ' +
-                    ' area INTEGER, ' +
-                    ' area_unit STRING, ' +
-                    ' type STRING, ' +
-                    ' status STRING, ' +
-                    ' bedrooms INTEGER, ' +
-                    ' bathrooms INTEGER, ' +
-                    ' kitchens INTEGER, ' +
-                    ' garage STRING, ' +
-                    ' pool STRING, ' +
-                    ' amenites STRING, ' +
-                    ' lat STRING, ' +
-                    ' long STRING, ' +
-                    ' submitted INTEGER, ' +
-                    ' negotiable INTEGER, ' +
-                    ' created_at STRING, ' +
-                    ' updated_at STRING, ' +
-                    ' downloaded_image STRING, ' +
-                    ' featured_image_downloaded STRING ' +
-                    ')'
-                );
-                console.log("done")
-            });
+            tx.executeSql(
+                'create table if not exists home_props (' +
+                'id STRING,' +
+                'code STRING, ' +
+                'title STRING, ' +
+                ' user_id STRING, ' +
+                ' location STRING, ' +
+                ' sub_location STRING, ' +
+                ' description STRING, ' +
+                ' featured_image STRING, ' +
+                ' gallery STRING, ' +
+                ' veiw_count INTEGER, ' +
+                ' old_price INTEGER, ' +
+                ' price INTEGER, ' +
+                ' price_unit INTEGER, ' +
+                ' price_type STRING, ' +
+                ' area INTEGER, ' +
+                ' area_unit STRING, ' +
+                ' type STRING, ' +
+                ' status STRING, ' +
+                ' bedrooms INTEGER, ' +
+                ' bathrooms INTEGER, ' +
+                ' kitchens INTEGER, ' +
+                ' garage STRING, ' +
+                ' pool STRING, ' +
+                ' amenites STRING, ' +
+                ' lat STRING, ' +
+                ' long STRING, ' +
+                ' submitted INTEGER, ' +
+                ' negotiable INTEGER, ' +
+                ' created_at STRING, ' +
+                ' updated_at STRING, ' +
+                ' downloaded_image STRING, ' +
+                ' featured_image_downloaded STRING ' +
+                ')'
+            );
+            console.log("done")
+
             this.selectFromDatabase(tx).then(res => {
                 if (res.rows > 0) {
                     console.log(res);
@@ -611,7 +603,6 @@ export default class HomeScreen extends React.Component {
             }
         };
         let resetFilters = () => {
-            this.getData();
             this.setState({bedrooms: 0});
             this.setState({bathrooms: 0});
             this.setState({area: 0});
@@ -619,6 +610,7 @@ export default class HomeScreen extends React.Component {
             this.setState({sub_location: ""});
             this.setState({min_price: 0});
             this.setState({max_price: 0})
+            this.setState({result:initial_result})
         };
 
         let renderResult = (item, idx) => {
@@ -663,7 +655,7 @@ export default class HomeScreen extends React.Component {
         return (
             <StyleProvider style={getTheme(material)}>
                 <Container>
-                    <Header style={{marginTop: -18}}>
+                    <Header>
                         <Left>
                             <Button
                                 transparent
@@ -701,49 +693,6 @@ export default class HomeScreen extends React.Component {
                     </Content>
 
 
-                    <View
-                        style={{
-                            height: 36,
-                            marginBottom: 50,
-                            justifyContent: "center",
-                            position: 'absolute',
-                            flex: 1,
-                            flexDirection: "row",
-                            bottom: 0,
-                            alignSelf: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'transparent',
-                            minWidth: 72
-
-                        }}>
-                        <Button style={{
-                            backgroundColor: "#69f0ae",
-                            borderBottomStartRadius: 18,
-                            height: 36,
-                            borderTopStartRadius: 18,
-                            borderBottomEndRadius: 0,
-                            borderTopEndRadius: 0,
-                        }} transparent onPress={() => {
-                            this.setModalVisible(true, 0);
-                        }}>
-
-                            <Text style={{fontSize: 8, color: "#000", fontWeight: "700"}}>{translate('filter')}</Text>
-                        </Button>
-                        <View style={{width: 1, backgroundColor: "#000"}}/>
-                        <Button style={{
-                            backgroundColor: "#69f0ae",
-                            borderBottomEndRadius: 18,
-                            height: 36,
-                            borderBottomStartRadius: 0,
-                            borderTopStartRadius: 0,
-                            borderTopEndRadius: 18
-                        }} onPress={() => {
-                            this.setModalVisible(true, 1);
-                        }} transparent>
-                            <Text style={{fontSize: 8, color: "#000", fontWeight: "700"}}>{translate('sort')}</Text>
-                        </Button>
-
-                    </View>
 
                     <ModifyResultModal setModalVisible={this.setModalVisible.bind(this)}
                                        modalVisible={this.state.modalVisible}
@@ -992,10 +941,56 @@ class ModifyResultModal extends React.Component {
                                 </Button>
                             </View>}
                     </View>
-
-
                 </View>
             </Modal>
         )
     }
 }
+
+// {
+//     <View
+//         style={{
+//             height: 36,
+//             marginBottom: 50,
+//             justifyContent: "center",
+//             position: 'absolute',
+//             flex: 1,
+//             flexDirection: "row",
+//             bottom: 0,
+//             alignSelf: 'center',
+//             alignItems: 'center',
+//             backgroundColor: 'transparent',
+//             minWidth: 72,
+//             display:"none"
+//
+//         }}>
+//         <Button style={{
+//             backgroundColor: "#69f0ae",
+//             borderBottomStartRadius: 18,
+//             height: 36,
+//             borderTopStartRadius: 18,
+//             borderBottomEndRadius: 0,
+//             borderTopEndRadius: 0,
+//         }} transparent onPress={() => {
+//             this.setModalVisible(true, 0);
+//         }}>
+//
+//             <Text style={{fontSize: 8, color: "#000", fontWeight: "700"}}>{translate('filter')}</Text>
+//         </Button>
+//         <View style={{width: 1, backgroundColor: "#000"}}/>
+//         <Button style={{
+//             backgroundColor: "#69f0ae",
+//             borderBottomEndRadius: 18,
+//             height: 36,
+//             borderBottomStartRadius: 0,
+//             borderTopStartRadius: 0,
+//             borderTopEndRadius: 18
+//         }} onPress={() => {
+//             this.setModalVisible(true, 1);
+//         }} transparent>
+//             <Text style={{fontSize: 8, color: "#000", fontWeight: "700"}}>{translate('sort')}</Text>
+//         </Button>
+//
+//     </View>
+//
+// }

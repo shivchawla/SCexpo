@@ -77,7 +77,6 @@ export default class LoginScreen extends React.Component {
         try {
             await AsyncStorage.setItem(key, data);
         } catch (error) {
-            alert(error.message)
             // Error saving data
         }
     };
@@ -116,7 +115,6 @@ export default class LoginScreen extends React.Component {
                                 let data = {email: this.state.email, password: this.state.password};
                                 logUser(data).then((res) => {
                                     if (res.api_response.message) {
-                                        alert(res.api_response.data.userInfo.email)
                                         this.saveUser("email", res.api_response.data.userInfo.email)
                                         this.saveUser("name", res.api_response.data.userInfo.name);
                                         this.saveUser("password", data.password);

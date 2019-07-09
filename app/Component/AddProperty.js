@@ -24,22 +24,23 @@ import CheckBox from 'react-native-check-box'
 import getTheme from '../../native-base-theme/components';
 import material from '../../native-base-theme/variables/variables';
 import {StyleProvider, Input} from "native-base";
-import ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import ImageCarousel from 'react-native-image-carousel';
-import {ENTRIES1} from "./PropertyScreen";
 import ScaledImage from "./Things/ScaledImage";
 import reauthenticate from "../Utils/Reauthenticate";
 import translate from "../Utils/i18n";
+import {Permissions, Constants} from 'expo';
 
+console.log("here1")
 const {width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 
 const dataArray = [
     {title: translate('amenities'), content: "Lorem ipsum dolor sit amet"},
 ];
-let name = ""
-let token = ""
-
+let name = "";
+let token = "";
 let formData = new FormData();
+console.log("here2");
 
 function getPropTypes(token) {
     return fetch(`http://www.semsar.city/api/dynamics/types?token=${encodeURIComponent(token)}`, {
@@ -76,7 +77,69 @@ function getPropTypes(token) {
 }
 
 export default class AddProperty extends React.Component {
-    _imageCarousel: ImageCarousel;
+
+
+    getPermissionAsync = async () => {
+        if (Constants.platform.ios) {
+            const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+            if (status !== 'granted') {
+                alert('Sorry, we need camera roll permissions to make this work!');
+            }
+        }
+    }
+
+    _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+        });
+
+        console.log(result);
+
+        if (!result.cancelled) {
+
+            const source = {uri: result.uri};
+            this.getImageName(result.uri).then(res => {
+                result.name = res.name;
+                console.log(result);
+                let finalResult = {
+                    name: res.name,
+                    type: res.ex,
+                    uri: result.uri,
+                };
+                this.setState({
+                    files: [...this.state.files, finalResult]
+                });
+            })
+
+        }
+    };
+
+    getImageName(uri) {
+        return new Promise((resolve, reject) => {
+            let name = '';
+            let ex = '';
+            for (let i = uri.length - 1; i >= 0; i--) {
+                console.log(uri[i])
+                if (uri[i] !== '/') {
+                    name = name + uri[i];
+                } else {
+                    ex = uri.toLowerCase().includes("png") ? "image/png" : "image/jpeg";
+                    let arrName = name.split("");
+                    arrName = arrName.reverse();
+                    name = arrName.join("");
+                    resolve({
+                        name: name,
+                        ex: ex
+                    });
+                    break;
+
+                }
+            }
+        })
+
+    }
 
     onPressLearnMore() {
         const options = {
@@ -88,6 +151,7 @@ export default class AddProperty extends React.Component {
             },
         };
 
+
         ImagePicker.launchImageLibrary(options, (response) => {
             console.log('Response = ', response);
 
@@ -98,78 +162,63 @@ export default class AddProperty extends React.Component {
             } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
-                const source = {uri: response.uri};
-                // You can also display the image using data:
-                // const source = { uri: 'data:image/jpeg;base64,' + response.data };
 
-
-                console.log(response);
-
-                this.setState({
-                    files: [...this.state.files, response]
-                });
             }
         });
     }
 
     submitProperty = (data) => {
-        console.log(data);
-        formData.append("product[token]", data.token);
-        formData.append("product[title]", data.title);
-        formData.append("product[description]", data.description);
-        formData.append("product[location]", data.location);
-        formData.append("product[sub_location]", data.sub_location);
-
-        formData.append("product[area]", data.area);
-        formData.append("product[status]", data.status);
-        for (let i = 0; i < this.state.files.length; i++) {
-
-            formData.append("product[gallery]" + "[" + i + "]" + "[file]", {
-                uri: this.state.files[i].uri,
-                name: this.state.files[i].fileName
-                , type: this.state.files[i].type
-            });
+        console.log("data" + data);
+        formData = new FormData();
+        for (let key in data) {
+            if (key !== 'gallery' && key !== "amenites" && key !== "featured_image") {
+                formData.append(key, data[key]);
+            } else {
+                console.log(key);
+            }
         }
 
-        formData.append("product[featured_image]" + "[" + 0 + "]" + "[file]", {});
-
-        if (this.state.files.length > 0) {
-            formData.append("product[featured_image]" + "[" + 0 + "]" + "[file]", {
-                uri: this.state.files[0].uri,
-                name: this.state.files[0].fileName
-                , type: this.state.files[0].type
+        for (let i = 0; i < data.amenites.length; i++) {
+            formData.append("amenites[]", data.amenites[i]);
+        }
+        if (data.gallery.length > 0) {
+            formData.append("featured_image[]", {
+                uri: data.gallery[0].uri,
+                type: data.gallery[0].type,  // <-  Did you miss that one?
+                name: data.gallery[0].name
             });
         }
-        formData.append("product[price]", data.price);
-        formData.append("product[amenties][]", data.amenities);
-        formData.append("product[garage]", data.garage);
-        formData.append("product[kitchens]", data.kitchens);
-        formData.append("product[pool]", data.pool);
-
-        formData.append("product[type]", data.type);
-        formData.append("product[price_unit]", data.price_unit);
-        formData.append("product[bedrooms]", data.bedrooms);
-        formData.append("product[area_unit]", data.area_unit);
-
-        return fetch("http://www.semsar.city/api/properties/submit", {
+        for (let i = 0; i < data.gallery.length; i++) {
+            formData.append("gallery[]", {
+                uri: data.gallery[i].uri,
+                type: data.gallery[i].type,  // <-  Did you miss that one?
+                name: data.gallery[i].name
+            })
+        }
+        console.log(formData);
+        alert("Your AD is being processed");
+        return fetch("https://www.semsar.city/api/properties/submit", {
             method: 'POST',
             body: formData,
-            headers: {'Content-Type': 'multipart/form-data'}
-        }).then((apiResponse) => {
-            console.log("api response", apiResponse);
-            return {
-                success: apiResponse.success,
-                api_response: apiResponse
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data'
             }
-        }).catch(error => {
-            console.log(error);
-            return {
-                message: error.message,
-                api_response: {success: false}
-            }
-        })
+        }).then(response => response.json())
+            .then((apiResponse) => {
+                console.log("api response", apiResponse);
+                return {
+                    success: apiResponse.success,
+                    api_response: apiResponse
+                }
+            }).catch(error => {
+                console.log(error);
+                return {
+                    message: error.message,
+                    api_response: {success: false}
+                }
+            })
     };
-
 
     getLocations = () => {
         return fetch(`http://www.semsar.city/api/dynamics/locations?token=${encodeURIComponent(this.state.token)}`, {
@@ -216,6 +265,7 @@ export default class AddProperty extends React.Component {
     };
 
     getData = async () => {
+        console.log("here+3")
         try {
             const value = await AsyncStorage.getItem('email');
             if (value !== null) {
@@ -224,13 +274,23 @@ export default class AddProperty extends React.Component {
                 this.setState({token: await AsyncStorage.getItem('token')});
                 this.setState({id: await AsyncStorage.getItem('id')});
                 this.setState({password: await AsyncStorage.getItem('password')});
-                getPropTypes(this.state.token).then((res) => {
-                    if (res.success) {
-                        this.setState({propTypes: res.types})
-                    } else if (res.message.includes("token")) {
-                        reauthenticate({email: this.state.email, password: this.state.password}).then(token => {
-                            this.getData();
-                        })
+                getPropTypes(this.state.token).then(res => {
+                    console.log(res)
+                    console.log("here4")
+                    try {
+                        if (res.success) {
+                            console.log(res)
+                            this.setState({propTypes: res.types});
+                            if (res.types.length > 0) {
+                                this.setState({type: res.types[0]})
+                            }
+                        } else if (res.message.includes("token")) {
+                            reauthenticate({email: this.state.email, password: this.state.password}).then(token => {
+                                this.getData();
+                            })
+                        }
+                    } catch (e) {
+                        console.log(e.message)
                     }
                 })
             } else {
@@ -250,14 +310,13 @@ export default class AddProperty extends React.Component {
         let gallery = [];
         let featured_image = [];
         if (this.state.files.length > 0) {
-            featured_image.push(this.state.files[0].data);
-        }
-        for (let i = 0; i < this.state.files.length; i++) {
-            console.log(this.state.files[i]);
-            gallery.push(this.state.files[i].data)
+            featured_image.push(this.state.files[0]);
         }
 
-        console.log("hee");
+        for (let i = 0; i < this.state.files.length; i++) {
+            console.log(this.state.files[i]);
+            gallery.push(this.state.files[i])
+        }
 
         this.submitProperty({
             token: this.state.token,
@@ -277,15 +336,17 @@ export default class AddProperty extends React.Component {
             area_unit: "m2",
             bedrooms: this.state.bedrooms,
             kitchens: this.state.kitchens,
+            old_price: this.state.old_price,
             pool: this.state.pool,
             amenites: this.state.propAmenity
         }).then(res => {
-            console.log(res);
+
             if (res.success) {
                 this.props.navigation.navigate("PromoteScreen")
             } else {
+                console.log("here");
+                console.log(res)
                 if (res.message.includes("token")) {
-                    console.log("here");
                     reauthenticate({email: this.state.email, password: this.state.password}).then(token => {
                         this.setState({token: token.token});
                         this.onSubmitClicked();
@@ -306,7 +367,6 @@ export default class AddProperty extends React.Component {
 
     constructor() {
         super();
-        this.getData();
         this.state = {
             files: [],
             propAmenity: [],
@@ -337,6 +397,7 @@ export default class AddProperty extends React.Component {
             sub_location: "",
             kitchens: 0,
             price: "",
+            old_price: "",
             status: "sale",
             area: "",
             email: "",
@@ -345,10 +406,10 @@ export default class AddProperty extends React.Component {
             locations: [],
             sub_locations: []
         };
+        this.getData();
         this.getLocations().then(res => {
-            console.log(res)
+            console.log(res);
             if (res.message === "done") {
-
                 this.setState({locations: res.locations})
                 this.setState({location: res.locations[0].title});
                 this.setState({location: res.locations[0].title});
@@ -380,7 +441,7 @@ export default class AddProperty extends React.Component {
                 })
             }
 
-        })
+        });
         // this.onSubmitClicked = this.onSubmitClicked.bind(this);
         this.submitProperty = this.submitProperty.bind(this);
     }
@@ -584,7 +645,7 @@ export default class AddProperty extends React.Component {
                             <View style={{marginBottom: -8}}>
                                 <Row style={{height: 48, alignItems: 'center'}}>
 
-                                    <Text onPress={this.onPressLearnMore.bind(this)} uppercase style={{
+                                    <Text onPress={this._pickImage.bind(this)} uppercase style={{
                                         fontSize: 13,
                                         fontWeight: "700",
                                         color: "#9c9c9c"
@@ -632,6 +693,12 @@ export default class AddProperty extends React.Component {
                                     <Input placeholder={translate('price')} keyboardType="numeric"
                                            onChangeText={(text) => {
                                                this.setState({price: text})
+                                           }}/>
+                                </Item>
+                                <Item>
+                                    <Input placeholder={translate('old_price')} keyboardType="numeric"
+                                           onChangeText={(text) => {
+                                               this.setState({old_price: text})
                                            }}/>
                                 </Item>
                                 <Row style={{height: 48, alignItems: 'center'}}>
