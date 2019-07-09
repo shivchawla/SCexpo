@@ -9,7 +9,8 @@ import {
     Modal,
     Linking,
     TouchableOpacity,
-    StyleSheet
+    StyleSheet,
+    Share
 } from "react-native";
 import StarRating from 'react-native-star-rating';
 import ImagePicker from 'react-native-image-picker';
@@ -44,6 +45,8 @@ import reauthenticate from "../../Utils/Reauthenticate";
 import Property from "../Things/Property";
 import translate from "../../Utils/i18n";
 import {Permissions, Constants} from 'expo';
+import {Entypo} from '@expo/vector-icons';
+import style from '../../styles/facebookLoginStyle';
 
 const {width: viewportWidth, height: viewportHeight} = Dimensions.get('window');
 const styles = StyleSheet.create({
@@ -118,7 +121,6 @@ export default class Profile extends React.Component {
     static navigationOptions = {
         header: null,
     };
-
 
 
     getPermissionAsync = async () => {
@@ -361,34 +363,6 @@ export default class Profile extends React.Component {
         this.getData();
     }
 
-    shareLinkWithShareDialog = () => {
-
-        var tmp = this;
-        ShareDialog.canShow({
-            contentType: 'link',
-            contentUrl: "https://facebook.com",
-            contentDescription: this.state.name,
-        }).then(
-            function (canShow) {
-                if (canShow) {
-                    return ShareDialog.show(tmp.state.shareLinkContent);
-                }
-            }
-        ).then(
-            function (result) {
-                if (result.isCancelled) {
-                    alert('Share operation was cancelled');
-                } else {
-                    alert('Share was successful with postId: '
-                        + result.postId);
-                }
-            },
-            function (error) {
-                alert('Share failed with error: ' + error.message);
-            }
-        );
-    };
-
     openRateModal() {
         this.setState({openRateModal: !this.state.openRateModal})
     };
@@ -468,7 +442,21 @@ export default class Profile extends React.Component {
             }
         });
     };
+    //
+    // contentUrl: "https://facebook.com",
+    // contentDescription: this.state.name,
 
+    _shareMessage(name) {
+        Share.share({
+            message: "https://semsar.city/" + name
+        })
+            .then((res) => {
+                alert("done")
+            })
+            .catch((error) => {
+
+            });
+    }
 
     onUploadClicked = () => {
         let data = {
@@ -496,7 +484,7 @@ export default class Profile extends React.Component {
         return (
             <StyleProvider style={getTheme(material)}>
                 <Container>
-                    <Header style={{marginTop: -18}}>
+                    <Header>
                         <Left>
                             <Button transparent onPress={() => this.props.navigation.openDrawer()}>
                                 <Icon name="menu"/>
@@ -507,11 +495,19 @@ export default class Profile extends React.Component {
                         </Body>
                         {this.state.name === this.props.navigation.state.params.data.name ? <Right>
 
-                            <ShareButton shareContent={{
-                                contentType: 'link',
-                                contentUrl: "https://semsar.city/" + this.props.navigation.state.params.data.name,
-                                contentDescription: "Visit " + this.props.navigation.state.params.data.name + " on Semsar City",
-                            }}/>
+                            <TouchableOpacity style={{
+                                backgroundColor: "#0049ff",
+                                padding: 4,
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }} onPress={() => {
+                                this._shareMessage(this.props.navigation.state.params.data.name)
+                            }}>
+                                <Entypo name="share" style={style.facebookIcon}/>
+                                <Text style={{fontSize: 12, fontWeight: "600", color: "white"}}>Share</Text>
+                            </TouchableOpacity>
                         </Right> : null}
                     </Header>
 
