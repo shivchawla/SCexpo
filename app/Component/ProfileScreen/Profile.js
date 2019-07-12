@@ -13,7 +13,7 @@ import {
     Share
 } from "react-native";
 import StarRating from 'react-native-star-rating';
-import ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import {
     Text,
     Container,
@@ -121,6 +121,8 @@ export default class Profile extends React.Component {
     static navigationOptions = {
         header: null,
     };
+
+
 
 
     getPermissionAsync = async () => {

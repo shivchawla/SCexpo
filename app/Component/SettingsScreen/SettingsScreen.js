@@ -83,15 +83,6 @@ export default class SettingsScreen extends React.Component {
                         </Body>
                     </Header>
 
-
-                    <ListItem
-                        button
-                        onPress={() => {
-                            this.props.navigation.navigate("MembershipScreen")
-                        }}>
-                        <Text>{translate('membership')}</Text>
-                    </ListItem>
-
                     <ListItem button>
                         <Text>{translate('aboutUs')}</Text>
                     </ListItem>
