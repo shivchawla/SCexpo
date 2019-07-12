@@ -201,7 +201,7 @@ export default class SideBar extends React.Component {
                         : null
                     }
 
-                    {this.state.type === "agent" ? <ListItem
+                    {this.state.type === "broker" ? <ListItem
                             button
                             onPress={() => this.props.navigation.navigate("ManageAgentsScreen")}>
                             <Icon name={"md-contact"} style={{marginRight: 18, color: "grey"}}/>
