@@ -7,3 +7,4 @@
 - 5 run ``yarn start`` will open a new which is the development server just like the dashboard select ``local`` rather than ``lan`` in the connection type.
 - 6 the developmet server will downlaod expo app 
 - 7 hit ``i`` to run on ios
+- 8 Agent account ``gg@gmail.com`` password ``12312312312``
