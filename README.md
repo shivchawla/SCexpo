@@ -1,6 +1,6 @@
 # SCexpo
 ## Pre install
-- 1 clone this repo via xCode
+- 1 download this repo
 - 2 open terminal and go to the root folder of this repo which is ``SCexpo-master``
 - 3 install yarn 
 - 4 run ``yarn install``
