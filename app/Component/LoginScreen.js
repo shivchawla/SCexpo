@@ -56,7 +56,7 @@ const style = StyleSheet.create({
         color: "#000",
         fontSize: 18,
         textDecorationLine: 'underline',
-        marginBottom: 25
+        marginTop: 8
     },
     f_button: {width: "100%", backgroundColor: "#4267b2", marginBottom: 5},
     g_button: {width: "100%", backgroundColor: "#b20012", marginTop: 15},
@@ -140,6 +140,10 @@ export default class LoginScreen extends React.Component {
                             }} style={{marginTop: 15}}>
                                 <Text>{translate('Login')}</Text>
                             </Button>
+                            <Text style={style.terms}
+                                  onPress={() => {
+                                      this.props.navigation.push('Login')
+                                  }}>{translate("Register")}</Text>
                         </View>
                     </View>
                 </StyleProvider>

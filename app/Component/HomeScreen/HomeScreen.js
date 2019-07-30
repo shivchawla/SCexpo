@@ -451,6 +451,7 @@ export default class HomeScreen extends React.Component {
                 this.getName(this.state.token);
             } else {
                 this.setState({logged: null})
+                this.setState({loading: false})
             }
 
         } catch (error) {
@@ -610,7 +611,7 @@ export default class HomeScreen extends React.Component {
             this.setState({sub_location: ""});
             this.setState({min_price: 0});
             this.setState({max_price: 0})
-            this.setState({result:initial_result})
+            this.setState({result: initial_result})
         };
 
         let renderResult = (item, idx) => {
@@ -691,7 +692,6 @@ export default class HomeScreen extends React.Component {
                         </ScrollView>
 
                     </Content>
-
 
 
                     <ModifyResultModal setModalVisible={this.setModalVisible.bind(this)}
