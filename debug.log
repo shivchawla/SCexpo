@@ -261,3 +261,37 @@
 [0712/203419.889:ERROR:crash_report_database_win.cc(469)] failed to stat report
 [0712/211449.872:ERROR:crash_report_database_win.cc(469)] failed to stat report
 [0712/211449.872:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/212949.873:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/212949.873:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213542.635:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213542.636:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.112:ERROR:settings.cc(325)] Settings version is not 1
+[0712/213709.112:ERROR:settings.cc(325)] Settings version is not 1
+[0712/213709.164:ERROR:process_info.cc(359)] UncheckedAllocate
+[0712/213709.208:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.209:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.212:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.212:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.245:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.245:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.247:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0712/213709.247:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/201846.844:ERROR:settings.cc(325)] Settings version is not 1
+[0730/201846.848:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/201846.848:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/202846.849:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/202846.849:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/202846.850:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/202846.850:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/203346.848:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/203346.848:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/204846.879:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/204846.879:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/210346.880:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/210346.880:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/211846.881:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/211846.881:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/221313.772:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/221313.772:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/221812.077:ERROR:crash_report_database_win.cc(469)] failed to stat report
+[0730/221812.077:ERROR:crash_report_database_win.cc(469)] failed to stat report
